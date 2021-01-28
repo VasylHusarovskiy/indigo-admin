@@ -1,10 +1,13 @@
 /* eslint-disable arrow-parens */
 import React, { useState, useEffect } from 'react'
+import 'firebase/database'
+import firebase from 'firebase/app'
 import styles from '../styles/auth.module.sass'
 import InputLine from '../components/Input_line/Input_line'
 import ButLog from '../components/Button/Button'
 import Message from '../components/Message/Message'
 import UserItem from '../components/UserItem/UserItem'
+import '../lib/firebase'
 
 const ieadmin = () => {
   const [authInputsValues] = useState({})
@@ -40,13 +43,15 @@ const ieadmin = () => {
     const logResult = await response.json()
     return logResult
   }
+
   useEffect(() => {
     async function fetchData() {
       userDataHandler(await getUsers())
     }
     fetchData()
   }, [])
-  const submitLoginHandler = async e => {
+
+  const submitUserAddHandler = async e => {
     e.preventDefault()
     const response = await fetch(`${window.location.origin}/api/getUsers`, {
       method: 'GET',
@@ -56,6 +61,8 @@ const ieadmin = () => {
       cors: 'no-cors'
     })
     const logResult = await response.json()
+    userData.push(authInputsValues)
+    await firebase.database().ref('users').set(userData).then(() => console.log('here '))
 
     if (logResult.iea) {
       setShowMessage(true)
@@ -76,7 +83,7 @@ const ieadmin = () => {
   }
   return (
     <div className={styles.container}>
-      <form className={styles.formContainer} onSubmit={(e) => submitLoginHandler(e)}>
+      <form className={styles.formContainer} onSubmit={(e) => submitUserAddHandler(e)}>
         <svg width="75" height="75" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="25" cy="1.89655" r="1.89655" fill="#f05c5c" />
           <circle cx="24.9426" cy="27.5862" r="19.8851" stroke="#f05c5c" strokeWidth="3.21839" />
@@ -93,7 +100,7 @@ const ieadmin = () => {
             <InputLine
               key={key}
               placeholder={element.placeholder}
-              inputName={element.inputName}
+              inpuName={element.inputName}
               changeHandler={(e) => getDataInput(e)}
               inputType={element.inputType}
             />

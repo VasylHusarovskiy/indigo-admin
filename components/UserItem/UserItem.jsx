@@ -6,7 +6,7 @@ import Button from '../Button/Button'
 const UserItem = ({ user, openUserHandler, openUser }) => (
   <div className={styles.container} onClick={() => openUserHandler(user.id)}>
     <div className={styles.upPart}>
-      <p>{`${user.name} ${user.secondName}`}</p>
+      <p>{`${user.Name} ${user.SecondName}`}</p>
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M5 6L10 11L15 6L17 7L10 14L3 7L5 6Z" fill="white" />
       </svg>

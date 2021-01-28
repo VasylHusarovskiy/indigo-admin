@@ -8,6 +8,8 @@
     "start": "next start"
   },
   "dependencies": {
+    "firebase": "^8.2.4",
+    "firebase-tools": "^9.2.2",
     "next": "10.0.5",
     "next-images": "^1.6.2",
     "node-fetch": "^2.6.1",
