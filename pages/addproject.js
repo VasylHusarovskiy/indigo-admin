@@ -6,6 +6,7 @@ import Select from 'react-select';
 import FormName from '../components/FormName/FormName'
 import Input_line from '../components/Input_line/Input_line'
 import { TagCloud } from 'react-tagcloud'
+import Button from '../components/Button/Button';
 
 const addproject = () => {
     const [selectedOption, setSelectedOption] = useState(null)
@@ -23,7 +24,6 @@ const addproject = () => {
         { value: 'React', count: 16 },
         { value: 'Nodejs', count: 16  },
         { value: 'Express.js', count: 16  },
-        
       ]  
     return (
         <div className={styles.container}>
@@ -55,10 +55,11 @@ const addproject = () => {
                         onClick={tag => alert(`'${tag.value}' was selected!`)}
                     />
                 </div>
+                <Button
+                btnName="Додати"
+                />
             </div>
-
         </div>
-
     )
 }
 export default addproject
