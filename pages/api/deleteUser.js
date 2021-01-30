@@ -3,10 +3,14 @@
 /* eslint-disable no-return-await */
 const fetch = require('node-fetch')
 
-const getUsersData = async () => {
+const getUsersData = async (req) => {
   return await fetch('https://admin-panel-fce34-default-rtdb.firebaseio.com/users.json')
     .then((resp) => resp.text())
-    .then((users) => JSON.parse(users))
+    .then((users) => {
+      const allUsers = JSON.parse(users)
+      const newUsers = allUsers.filter((user) => user.id.toString() !== req.body.toString())
+      return newUsers
+    })
 }
 
 export default async (req, res) => {
