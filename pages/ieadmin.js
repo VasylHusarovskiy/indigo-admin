@@ -2,38 +2,57 @@
 import React, { useState, useEffect } from 'react'
 import 'firebase/database'
 import firebase from 'firebase/app'
+import uniqid from 'uniqid'
 import styles from '../styles/auth.module.sass'
 import InputLine from '../components/Input_line/Input_line'
 import ButLog from '../components/Button/Button'
 import Message from '../components/Message/Message'
 import UserItem from '../components/UserItem/UserItem'
 import '../lib/firebase'
+import NavBar from '../components/NavBar/NavBar'
 
 const ieadmin = () => {
   const [authInputsValues] = useState({})
   const [ShowMessage, setShowMessage] = useState(false)
   const [userData, userDataHandler] = useState([])
   const [openUser, openUserHandler] = useState(null)
+  const [getNewData, getNewDataHandler] = useState(false)
+  const linkIcon = (
+    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M27.7295 14.7949L15.6621 2.7363C15.5752 2.64925 15.472 2.58018 15.3584 2.53305C15.2448 2.48593 15.123 2.46167 15 2.46167C14.877 2.46167 14.7552 2.48593 14.6416 2.53305C14.528 2.58018 14.4248 2.64925 14.3379 2.7363L2.27051 14.7949C1.91895 15.1465 1.71973 15.624 1.71973 16.122C1.71973 17.1562 2.56055 17.997 3.59473 17.997H4.86621V26.6015C4.86621 27.1201 5.28516 27.539 5.80371 27.539H13.125V20.9765H16.4062V27.539H24.1963C24.7148 27.539 25.1338 27.1201 25.1338 26.6015V17.997H26.4053C26.9033 17.997 27.3809 17.8008 27.7324 17.4463C28.4619 16.7138 28.4619 15.5273 27.7295 14.7949V14.7949Z" fill="black" />
+    </svg>
+  )
+
   const inputsData = [
     {
       placeholder: 'Ім\'я',
       inputName: 'Name',
-      inputType: 'text'
+      inputType: 'text',
+      required: true
     },
     {
       placeholder: 'Прізвище',
       inputName: 'SecondName',
-      inputType: 'text'
+      inputType: 'text',
+      required: true
     },
     {
       placeholder: 'Номер телефону',
       inputName: 'Phone',
-      inputType: 'tel'
+      inputType: 'tel',
+      required: true
+    },
+    {
+      placeholder: 'Номер телефону',
+      inputName: 'Phone2',
+      inputType: 'tel',
+      required: false
     },
     {
       placeholder: 'Пароль',
       inputName: 'Password',
-      inputType: 'text'
+      inputType: 'text',
+      required: true
     }
   ]
   const getUsers = async () => {
@@ -49,38 +68,50 @@ const ieadmin = () => {
       userDataHandler(await getUsers())
     }
     fetchData()
-  }, [])
+  }, [getNewData])
 
   const submitUserAddHandler = async e => {
     e.preventDefault()
-    const response = await fetch(`${window.location.origin}/api/getUsers`, {
+    await fetch(`${window.location.origin}/api/getUsers`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
       },
       cors: 'no-cors'
     })
-    const logResult = await response.json()
     userData.push(authInputsValues)
-    await firebase.database().ref('users').set(userData).then(() => console.log('here '))
-
-    if (logResult.iea) {
-      setShowMessage(true)
-      setTimeout(() => {
-        setShowMessage(false)
-        window.location = '/'
-      }, 2000)
-    } else {
-      setShowMessage(true)
-      setTimeout(() => {
-        setShowMessage(false)
-      }, 2000)
-    }
+    await firebase.database().ref('users').set(userData)
+    getNewDataHandler(!getNewData)
+    setShowMessage(true)
+    setTimeout(() => {
+      setShowMessage(false)
+    }, 2000)
+    e.target.reset()
   }
 
   const getDataInput = e => {
     authInputsValues[e.target.name] = e.target.value
+    authInputsValues.id = uniqid()
   }
+
+  const deleteUserHandler = async id => {
+    const response = await fetch(`${window.location.origin}/api/deleteUser`, {
+      method: 'POST',
+      body: JSON.stringify(id),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      cors: 'no-cors'
+    })
+    const deleteResult = await response.json()
+    await firebase.database().ref('users').set(deleteResult)
+    userDataHandler(deleteResult)
+    setShowMessage(true)
+    setTimeout(() => {
+      setShowMessage(false)
+    }, 2000)
+  }
+
   return (
     <div className={styles.container}>
       <form className={styles.formContainer} onSubmit={(e) => submitUserAddHandler(e)}>
@@ -100,9 +131,10 @@ const ieadmin = () => {
             <InputLine
               key={key}
               placeholder={element.placeholder}
-              inpuName={element.inputName}
+              inputName={element.inputName}
               changeHandler={(e) => getDataInput(e)}
               inputType={element.inputType}
+              required={element.required}
             />
           ))
         }
@@ -114,16 +146,24 @@ const ieadmin = () => {
       </form>
       <div>
         {
-            userData.map((user, key) => (
+          userData.length
+            ? userData.map((user, key) => (
               <UserItem
                 openUserHandler={(value) => openUserHandler(value)}
                 openUser={openUser}
                 key={key}
                 user={user}
+                deleteUserHandler={(id) => deleteUserHandler(id)}
               />
             ))
+            : null
         }
       </div>
+      <NavBar
+        title="На головну"
+        icon={linkIcon}
+        link=""
+      />
     </div>
   )
 }
