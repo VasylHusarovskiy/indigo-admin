@@ -44,7 +44,7 @@ const Home = () => {
         link="ieadmin"
       />
       <div className={styles.addNewProject}>
-        <Link href="/addProject">
+        <Link href="/addproject">
           <a>
             Додати проект
           </a>
