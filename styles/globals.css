@@ -58,30 +58,3 @@ a {
 input, button {
   outline: none;
 }
-
-.ap-input {
-  max-width: 500px;
-  min-width: 280px;
-  color: #f05c5c;
-  border: 1px solid #f05c5c;
-  border-radius: 5px;
-  background-color: transparent;
-}
-.ap-icon-clear, .ap-icon-pin, .ap-input  {
-  margin-top: 20px;
-}
-
-.ap-dataset-places {
-  background-color: #323232;
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  color: #f05c5c;
-  transition: .3s;
-}
-.ap-suggestion {
-  background-color: #323232;
-}
-.ap-suggestion:hover {
-  background-color: #4e4e4e;
-}

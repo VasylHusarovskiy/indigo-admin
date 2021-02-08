@@ -20,7 +20,7 @@ const Home = () => {
       cors: 'no-cors'
     })
     const logResult = await response.json()
-    if (await !logResult) {
+    if (!logResult) {
       localStorage.removeItem(localStorage.removeItem('iea'))
       window.location = '/auth'
     }

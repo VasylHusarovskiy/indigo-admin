@@ -1,37 +1,75 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 // import PropTypes from 'prop-types'
 import Select from 'react-select'
-import AlgoliaPlaces from 'algolia-places-react'
 import styles from '../styles/addproject.module.sass'
 import FormLogoContainer from '../components/FormLogoContainer/FormLogoContainer'
 import FormName from '../components/FormName/FormName'
 import Input from '../components/Input_line/Input_line'
 import Button from '../components/Button/Button'
+import Tabs from '../components/Tabs/Tabs'
 
-const options = [
-  { value: 'chocolate', label: 'Chocolate' },
-  { value: 'strawberry', label: 'Strawberry' }
-]
-
-const addproject = (props) => {
+const addproject = () => {
   const [NewInputValue, setNewInputValue] = useState(null)
+  const [CurrentUser, setCurrentUser] = useState(null)
+  const [UserPhones, setUserPhones] = useState(null)
+  const [GetGeoLocation, setGetGeoLocation] = useState(null)
+  const tabsAble = [
+    'Обробка хімією', 'Висушування стін', 'Висушування підлоги',
+    'Гідроізоляція', 'Опалення', 'Вологість', 'Витяжка'
+  ]
+  const geoLocations = [{
+    value: 'Івано-Франківськ',
+    label: 'Івано-Франківськ'
+  },
+  {
+    value: 'Київ',
+    label: 'Київ'
+  }]
+
   const handleChange = (e) => {
     setNewInputValue(e)
-    console.log(e)
   }
+
+  const getCreatorName = async () => {
+    const response = await fetch(`${window.location.origin}/api/getCurrentUser`, {
+      method: 'POST',
+      body: JSON.stringify(localStorage.getItem('iea')),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      cors: 'no-cors'
+    })
+    const result = await response.json()
+    setCurrentUser(result[0])
+    setUserPhones([{
+      value: result[0].Phone,
+      label: result[0].Phone
+    },
+    {
+      value: result[0]?.Phone2,
+      label: result[0]?.Phone2
+    }])
+  }
+
+  useEffect(() => {
+    getCreatorName()
+    console.log(GetGeoLocation)
+  }, [GetGeoLocation])
+
   return (
     <div className={styles.container}>
       <div className={styles.box}>
         <FormLogoContainer />
         <FormName
-          Name="Сергій"
+          Name={CurrentUser ? CurrentUser.Name : null}
         />
 
         <Select
           value={NewInputValue}
           onChange={(e) => handleChange(e)}
-          options={options}
+          options={UserPhones}
           isClearable
+          placeholder="Номер на який дзвонили"
           instanceId={1}
           className={styles.selectNumber}
           theme={(theme) => ({
@@ -51,59 +89,46 @@ const addproject = (props) => {
         <Input
           placeholder="Ім'я клієнта"
           inputName="firstName"
+          inputType="text"
+
         />
         <Input
           placeholder="Номер клієнта"
           inputName="namber"
+          inputType="tel"
+
         />
-        <AlgoliaPlaces
-          placeholder="Введіть адресу"
-          options={{
-            appId: 'plXRY806GKQ7',
-            apiKey: '9d6f8ba03176acf389564330409356ba',
-            language: 'ua',
-            countries: ['ua'],
-            type: 'address',
-            hit: {
-                city: ['Івано-Франківськ']
-            },
-            accessibility: {
-                pinButton: {
-                  'aria-label': 'use browser geolocation',
-                  'tab-index': 12,
-                },
-                clearButton: {
-                  'tab-index': 13,
-                }
-              },
-            templates: {
-              suggestion: function(suggestion) {
-                  console.log(suggestion)
-                return `<div class="searchItem">${suggestion.city} ${suggestion.name}</div>`
-              }
+        <Select
+          value={GetGeoLocation}
+          onChange={(e) => setGetGeoLocation(e)}
+          options={geoLocations}
+          isClearable
+          placeholder="Оберіть місто"
+          instanceId={2}
+          className={styles.selectNumber}
+          theme={(theme) => ({
+            ...theme,
+            borderColor: 'transparent',
+            colors: {
+              ...theme.colors,
+              primary: '#f05c5c',
+              primary75: 'transparent',
+              primary25: 'rgba(255,0,0,.3)',
+              neutral0: 'black',
+              neutral80: '#e63c3c'
             }
-            // Other options from https://community.algolia.com/places/documentation.html#options
-          }}
-
-          onChange={({
-            query, rawAnswer, suggestion, suggestionIndex
-          }) => console.log('Fired when suggestion selected in the dropdown or hint was validated.')}
-
-          onSuggestions={({ rawAnswer, query, suggestions }) => console.log('Fired when dropdown receives suggestions. You will receive the array of suggestions that are displayed.')}
-
-          onCursorChanged={({
-            rawAnswer, query, suggestion, suggestonIndex
-          }) => console.log('Fired when arrows keys are used to navigate suggestions.')}
-
-          onClear={() => console.log('Fired when the input is cleared.')}
-
-          onLimit={({ message }) => console.log('Fired when you reached your current rate limit.')}
-
-          onError={({ message }) => console.log('Fired when we could not make the request to Algolia Places servers for any reason but reaching your rate limit.')}
+          })}
+        />
+        <Input
+          placeholder="Адреса"
+          inputName="address"
+          inputType="text"
         />
         <div className={styles.TagCloud}>
           <p>Оберіть тип робіт</p>
-
+          <Tabs
+            arrValue={tabsAble}
+          />
         </div>
         <Button
           btnName="Додати"
