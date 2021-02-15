@@ -30,23 +30,23 @@
           justify-content: center;
 }
 
-.textInp {
-  width: 200px;
+.selectNumber {
+  max-width: 500px;
+  min-width: 280px;
+  color: #f05c5c;
 }
 
-.textInp div {
-  background-color: transparent;
-  color: white;
+.selectNumber:hover div {
+  border-color: transparent;
+}
+
+.selectNumber div {
+  border-color: transparent;
 }
 
 .TagCloud {
   margin-top: 20px;
-  width: 100%;
+  max-width: 500px;
   text-align: center;
-}
-
-.TagCloud p {
-  margin-bottom: 10px;
-  color: #f05c5c;
 }
 /*# sourceMappingURL=addproject.module.css.map */

@@ -54,7 +54,7 @@
   width: 100%;
 }
 
-.container .upPart p {
+.container .upPart p, .container .upPart a {
   color: white;
   -webkit-transition: .3s;
   transition: .3s;
@@ -65,7 +65,7 @@
   transition: .3s;
 }
 
-.container:hover p {
+.container:hover p, .container:hover a {
   color: #e63c3c;
 }
 
@@ -99,7 +99,7 @@
   padding: 10px 0;
 }
 
-.downPart div p {
+.downPart div a, .downPart div p {
   color: white;
   margin-left: 10px;
 }

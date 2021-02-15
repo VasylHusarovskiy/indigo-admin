@@ -5,7 +5,7 @@ import Input from '../Input_line/Input_line'
 import Button from '../Button/Button'
 import TabItem from '../TabItem/TabItem'
 
-const Tabs = ({ arrValue }) => {
+const Tabs = ({ arrValue, tabsHandler }) => {
   const [GetTabValues, setGetTabValues] = useState([])
   const [NewTabValue, setNewTabValue] = useState({})
   const [selected, setSelected] = useState([])
@@ -40,7 +40,7 @@ const Tabs = ({ arrValue }) => {
 
   useEffect(() => {
     setSelected(selected)
-    console.log(selected)
+    tabsHandler(selected)
   }, [Flag])
   return (
     <div>
@@ -77,7 +77,8 @@ const Tabs = ({ arrValue }) => {
 }
 
 Tabs.propTypes = {
-  arrValue: PropTypes.array
+  arrValue: PropTypes.array,
+  tabsHandler: PropTypes.func
 }
 
 export default Tabs

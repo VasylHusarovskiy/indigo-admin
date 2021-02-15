@@ -1,22 +1,30 @@
 import React, { useState, useEffect } from 'react'
-// import PropTypes from 'prop-types'
 import Select from 'react-select'
+import uniqid from 'uniqid'
+import firebase from 'firebase/app'
 import styles from '../styles/addproject.module.sass'
 import FormLogoContainer from '../components/FormLogoContainer/FormLogoContainer'
 import FormName from '../components/FormName/FormName'
 import Input from '../components/Input_line/Input_line'
 import Button from '../components/Button/Button'
 import Tabs from '../components/Tabs/Tabs'
+import Message from '../components/Message/Message'
+import '../lib/firebase'
+import 'firebase/database'
 
 const addproject = () => {
-  const [NewInputValue, setNewInputValue] = useState(null)
-  const [CurrentUser, setCurrentUser] = useState(null)
-  const [UserPhones, setUserPhones] = useState(null)
-  const [GetGeoLocation, setGetGeoLocation] = useState(null)
   const tabsAble = [
     'Обробка хімією', 'Висушування стін', 'Висушування підлоги',
     'Гідроізоляція', 'Опалення', 'Вологість', 'Витяжка'
   ]
+  const [NewInputValue, setNewInputValue] = useState(null)
+  const [CurrentUser, setCurrentUser] = useState(null)
+  const [UserPhones, setUserPhones] = useState(null)
+  const [GetGeoLocation, setGetGeoLocation] = useState(null)
+  const [InputsValues] = useState({})
+  const [TabsValues, setTabsValues] = useState(tabsAble)
+  const [ProjectsArr, setProjectsArr] = useState([])
+  const [ShowMessage, setShowMessage] = useState(false)
   const geoLocations = [{
     value: 'Івано-Франківськ',
     label: 'Івано-Франківськ'
@@ -51,18 +59,61 @@ const addproject = () => {
     }])
   }
 
+  const getInputValues = (e) => {
+    InputsValues[e.target.name] = e.target.value
+  }
+
+  const submitAddProject = async (e) => {
+    e.preventDefault()
+    const projects = ProjectsArr.length ? ProjectsArr : []
+    const newProject = {
+      id: uniqid(),
+      date: new Date().toISOString().slice(0, 10),
+      creatorName: CurrentUser.Name,
+      numberPhoning: NewInputValue.value,
+      clientName: InputsValues.firstName,
+      clientNumber: InputsValues.number,
+      city: GetGeoLocation.value,
+      street: InputsValues.address,
+      workTypes: TabsValues
+    }
+    projects.unshift(newProject)
+    await firebase.database().ref('projects').set(projects)
+    setShowMessage(true)
+    setTimeout(() => {
+      setShowMessage(false)
+      window.location.reload()
+    }, 2000)
+  }
+
   useEffect(() => {
     getCreatorName()
-    console.log(GetGeoLocation)
+    // console.log(GetGeoLocation)
   }, [GetGeoLocation])
+
+  const getProjects = async () => {
+    const response = await fetch(`${window.location.origin}/api/getProjects`, {
+      method: 'GET'
+    })
+    const logResult = await response.json()
+    return logResult
+  }
+
+  useEffect(() => {
+    async function fetchData() {
+      setProjectsArr(await getProjects())
+    }
+    fetchData()
+  }, [])
 
   return (
     <div className={styles.container}>
-      <div className={styles.box}>
+      <form className={styles.box} onSubmit={(e) => submitAddProject(e)}>
         <FormLogoContainer />
         <FormName
           Name={CurrentUser ? CurrentUser.Name : null}
         />
+        <Message message="message example" status={ShowMessage} activationKey={ShowMessage} />
 
         <Select
           value={NewInputValue}
@@ -90,12 +141,13 @@ const addproject = () => {
           placeholder="Ім'я клієнта"
           inputName="firstName"
           inputType="text"
-
+          changeHandler={(e) => getInputValues(e)}
         />
         <Input
           placeholder="Номер клієнта"
-          inputName="namber"
+          inputName="number"
           inputType="tel"
+          changeHandler={(e) => getInputValues(e)}
 
         />
         <Select
@@ -123,17 +175,21 @@ const addproject = () => {
           placeholder="Адреса"
           inputName="address"
           inputType="text"
+          changeHandler={(e) => getInputValues(e)}
+
         />
         <div className={styles.TagCloud}>
           <p>Оберіть тип робіт</p>
           <Tabs
-            arrValue={tabsAble}
+            arrValue={TabsValues}
+            tabsHandler={(value) => setTabsValues(value)}
           />
         </div>
         <Button
           btnName="Додати"
+          btnType="submit"
         />
-      </div>
+      </form>
     </div>
   )
 }
